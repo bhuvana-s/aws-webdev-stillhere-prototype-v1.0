@@ -12,6 +12,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import BlobShape from "@/components/Blob";
 import ClayCard from "@/components/ClayCard";
+import PressGallery from "@/components/PressGallery";
 import WaxSeal from "@/components/WaxSeal";
 import WaxSealReveal from "@/components/WaxSealReveal";
 import {
@@ -168,10 +169,6 @@ export default function RevealPage() {
 
   const onSaveForever = useCallback(() => {
     showToast("Saved to your library.");
-  }, [showToast]);
-
-  const onSaveReflection = useCallback(() => {
-    showToast("Your reflection is saved. This memory is yours to keep.");
   }, [showToast]);
 
   const revealedVisible = phase === "revealed";
@@ -354,7 +351,7 @@ export default function RevealPage() {
                 </div>
               </ClayCard>
 
-              <div className="flex flex-wrap items-center justify-center gap-4">
+              <div className="flex items-center justify-center">
                 <button
                   type="button"
                   className="btn-ghost"
@@ -362,13 +359,13 @@ export default function RevealPage() {
                 >
                   ♥ Save forever
                 </button>
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  onClick={onSaveReflection}
-                >
-                  ✦ Save my reflection
-                </button>
+              </div>
+
+              <div className="mt-16 w-full">
+                <PressGallery
+                  heading="Why this matters"
+                  subheading="What you just felt — we measured the demand for it."
+                />
               </div>
 
               <Link

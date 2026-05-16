@@ -76,7 +76,7 @@ export default function SentPage() {
       <BlobShape variant="sage" size={180} style={{ bottom: 80, left: -40 }} />
       <BlobShape variant="gold" size={100} style={{ top: 200, left: 80 }} />
 
-      <div className="mx-auto flex max-w-2xl flex-col items-center px-6 py-16 text-center md:py-24">
+      <div className="mx-auto flex max-w-xl flex-col items-center px-6 py-12 text-center md:py-16">
         {!loaded ? (
           <div className="h-32" aria-hidden />
         ) : status === "draft" ? (

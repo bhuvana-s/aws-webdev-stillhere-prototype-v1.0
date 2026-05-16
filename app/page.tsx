@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import Blob from "@/components/Blob";
+import PressGallery from "@/components/PressGallery";
 import { clearStory } from "@/lib/storage";
 
 export default function LandingPage() {
@@ -22,11 +23,11 @@ export default function LandingPage() {
       <Blob variant="sage" size={220} style={{ top: 120, right: -60 }} />
       <Blob variant="gold" size={140} style={{ bottom: 120, left: 60 }} />
 
-      <div className="mx-auto flex max-w-5xl flex-col items-center justify-center px-6 pt-16 pb-24 text-center md:pt-24">
-        <p className="eyebrow mb-6">A StillHere Legacy Gift</p>
+      <div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 pt-10 pb-20 text-center md:pt-14">
+        <p className="eyebrow mb-5">A StillHere Legacy Gift</p>
 
         <h1
-          className="font-display mb-6 text-5xl leading-[1.05] tracking-tight md:text-7xl"
+          className="font-display mb-5 text-4xl leading-[1.08] tracking-tight md:text-5xl"
           style={{ color: "var(--ink)" }}
         >
           Your love,{" "}
@@ -37,7 +38,7 @@ export default function LandingPage() {
         </h1>
 
         <p
-          className="mb-10 max-w-2xl text-lg leading-relaxed md:text-xl"
+          className="mb-8 max-w-xl text-base leading-relaxed md:text-lg"
           style={{ color: "var(--ink-light)" }}
         >
           Give your parent a way to record stories that reach your child at the
@@ -45,14 +46,14 @@ export default function LandingPage() {
           arrive.
         </p>
 
-        <div className="mb-14 flex items-center justify-center">
+        <div className="mb-10 flex items-center justify-center">
           <Image
             src="/assets/hero-gift-box.png"
             alt="A claymorphic gift box wrapped in a sage green ribbon"
-            width={520}
-            height={520}
+            width={400}
+            height={400}
             priority
-            className="h-auto w-[320px] md:w-[440px]"
+            className="h-auto w-[240px] md:w-[300px]"
           />
         </div>
 
@@ -66,6 +67,10 @@ export default function LandingPage() {
         >
           Sealed by you today. Opened by them, one day.
         </p>
+
+        <div className="mt-16 w-full">
+          <PressGallery />
+        </div>
       </div>
     </main>
   );

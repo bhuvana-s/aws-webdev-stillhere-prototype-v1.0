@@ -47,7 +47,7 @@ export default function BuyPage() {
       <Blob variant="gold" size={120} style={{ top: 200, right: 40 }} />
       <Blob variant="terra" size={180} style={{ bottom: -40, right: -40 }} />
 
-      <div className="mx-auto max-w-2xl px-6 py-12 md:py-16">
+      <div className="mx-auto max-w-xl px-6 py-10 md:py-14">
         <Link
           href="/"
           className="mb-6 inline-block text-sm"

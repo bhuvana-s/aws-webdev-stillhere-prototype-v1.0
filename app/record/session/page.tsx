@@ -318,7 +318,7 @@ export default function RecordingSessionPage() {
       <BlobShape variant="sage" size={160} style={{ bottom: 60, right: -40 }} />
       <BlobShape variant="gold" size={100} style={{ top: 200, right: 30 }} />
 
-      <div className="mx-auto flex max-w-2xl flex-col items-center px-6 py-12 text-center md:py-16">
+      <div className="mx-auto flex max-w-xl flex-col items-center px-6 py-10 text-center md:py-14">
         <p className="eyebrow mb-3">Recording Prompt</p>
         <h1
           className="font-display mb-2 text-3xl leading-snug md:text-4xl"

@@ -46,7 +46,7 @@ export default function PromptSelectionPage() {
       <Blob variant="sage" size={160} style={{ bottom: 100, left: -40 }} />
       <Blob variant="gold" size={100} style={{ top: 320, right: 20 }} />
 
-      <div className="mx-auto max-w-3xl px-6 py-12 md:py-16">
+      <div className="mx-auto max-w-2xl px-6 py-10 md:py-14">
         <div className="mb-10 text-center">
           <p className="eyebrow mb-3">For your story</p>
           <h1

@@ -237,7 +237,7 @@ export default function ReviewPage() {
       <Blob variant="gold" size={120} style={{ bottom: 200, left: -40 }} />
       <Blob variant="terra" size={160} style={{ bottom: -40, right: -30 }} />
 
-      <div className="mx-auto max-w-2xl px-6 py-12 md:py-16">
+      <div className="mx-auto max-w-xl px-6 py-10 md:py-14">
         <p className="eyebrow mb-3">Review &amp; Seal</p>
         <h1
           className="font-display mb-2 text-4xl md:text-5xl"
