@@ -13,6 +13,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import BlobShape from "@/components/Blob";
 import ClayCard from "@/components/ClayCard";
 import PressGallery from "@/components/PressGallery";
+import ReplyRecorder from "@/components/ReplyRecorder";
 import WaxSeal from "@/components/WaxSeal";
 import WaxSealReveal from "@/components/WaxSealReveal";
 import {
@@ -368,6 +369,10 @@ export default function RevealPage() {
                 >
                   ♥ Save forever
                 </button>
+              </div>
+
+              <div className="mt-10 flex w-full justify-center">
+                <ReplyRecorder />
               </div>
 
               <div className="mt-16 w-full">

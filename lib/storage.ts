@@ -13,7 +13,7 @@
  */
 
 const DB_NAME = "stillhere";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 export const DEMO_KEY = "demo";
 
 export type SealStatus = "draft" | "sealed" | "revealed";
@@ -71,6 +71,9 @@ function openDB(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains("meta")) {
         db.createObjectStore("meta", { keyPath: "id" });
       }
+      if (!db.objectStoreNames.contains("replies")) {
+        db.createObjectStore("replies", { keyPath: "id" });
+      }
     };
     req.onerror = () => reject(req.error);
     req.onsuccess = () => resolve(req.result);
@@ -78,7 +81,7 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 function tx<T>(
-  storeName: "recordings" | "photos" | "meta",
+  storeName: "recordings" | "photos" | "meta" | "replies",
   mode: IDBTransactionMode,
   run: (store: IDBObjectStore) => IDBRequest<T>,
 ): Promise<T> {
@@ -119,6 +122,38 @@ export async function getRecording(): Promise<RecordingRecord | undefined> {
   return tx("recordings", "readonly", (s) =>
     s.get(DEMO_KEY),
   ) as Promise<RecordingRecord | undefined>;
+}
+
+/* ===========================================================
+   Reply (Aanya → grandma; minimal single-reply prototype)
+   =========================================================== */
+
+export interface ReplyRecord {
+  id: string;
+  blob: Blob;
+  mimeType: string;
+  durationSec: number;
+  createdAt: number;
+}
+
+export async function saveReply(
+  blob: Blob,
+  meta: { mimeType: string; durationSec: number },
+): Promise<void> {
+  const record: ReplyRecord = {
+    id: DEMO_KEY,
+    blob,
+    mimeType: meta.mimeType,
+    durationSec: meta.durationSec,
+    createdAt: Date.now(),
+  };
+  await tx("replies", "readwrite", (s) => s.put(record));
+}
+
+export async function getReply(): Promise<ReplyRecord | undefined> {
+  return tx("replies", "readonly", (s) =>
+    s.get(DEMO_KEY),
+  ) as Promise<ReplyRecord | undefined>;
 }
 
 /* ===========================================================
