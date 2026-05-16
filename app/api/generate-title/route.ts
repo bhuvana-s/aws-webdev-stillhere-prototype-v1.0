@@ -30,6 +30,7 @@ const STATIC_FALLBACKS: Record<string, string> = {
   "3": "The day I leapt forward",
   "4": "Our wedding day",
   "5": "What I learned the hard way",
+  "6": "A birthday wish, from me to you",
 };
 
 export const runtime = "nodejs";

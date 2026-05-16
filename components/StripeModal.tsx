@@ -157,7 +157,7 @@ export default function StripeModal({
               <div className="flex items-end justify-between text-[10px] uppercase tracking-widest opacity-90">
                 <div>
                   <p className="opacity-60">Cardholder</p>
-                  <p className="font-mono text-xs normal-case">Bhuvana S.</p>
+                  <p className="font-mono text-xs normal-case">Harini S.</p>
                 </div>
                 <div>
                   <p className="opacity-60">Exp</p>

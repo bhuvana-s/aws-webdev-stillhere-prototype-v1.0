@@ -14,7 +14,7 @@ import {
 } from "@/lib/storage";
 
 function formatDate(iso?: string): string {
-  if (!iso) return "June 15, 2042";
+  if (!iso) return "January 29, 2029";
   try {
     return new Date(iso).toLocaleDateString("en-US", {
       year: "numeric",
@@ -29,9 +29,9 @@ function formatDate(iso?: string): string {
 export default function SentPage() {
   const router = useRouter();
   const [status, setStatus] = useState<SealStatus>("draft");
-  const [parentName, setParentName] = useState("Mom");
+  const [parentName, setParentName] = useState("Saro");
   const [childName, setChildName] = useState("Aanya");
-  const [sealedDateLabel, setSealedDateLabel] = useState("June 15, 2042");
+  const [sealedDateLabel, setSealedDateLabel] = useState("January 29, 2029");
   const [toast, setToast] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -113,7 +113,7 @@ export default function SentPage() {
             onClick={onSkipTo2042}
             className="btn-ghost"
           >
-            Demo: skip to {sealedDateLabel.split(",")[1]?.trim() || "2042"}
+            Demo: skip to {sealedDateLabel.split(",")[1]?.trim() || "2029"}
           </button>
         )}
 
@@ -198,7 +198,7 @@ function DraftView({
               className="text-xs leading-relaxed"
               style={{ color: "var(--muted)" }}
             >
-              &ldquo;{childName}&apos;s family wants to hear your stories. Tap
+              &ldquo;{childName} wants to hear your stories. Tap
               here when you have a moment.&rdquo;
             </p>
           </div>

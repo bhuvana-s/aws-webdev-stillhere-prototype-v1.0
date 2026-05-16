@@ -24,10 +24,11 @@ import {
 
 type DeliveryOption = "6th" | "18th" | "parent" | "custom";
 
+// Aanya's birthday is 2011-01-29 (see DEFAULT_BUYER in app/buy/page.tsx).
 const DELIVERY_DATES: Record<DeliveryOption, string> = {
-  "6th": "2030-06-15",
-  "18th": "2042-06-15",
-  parent: "2055-06-15",
+  "6th": "2017-01-29",
+  "18th": "2029-01-29",
+  parent: "2041-01-29",
   custom: "",
 };
 
@@ -39,7 +40,7 @@ function formatClock(s: number): string {
 }
 
 function formatDate(iso: string): string {
-  if (!iso) return "June 15, 2042";
+  if (!iso) return "January 29, 2029";
   try {
     return new Date(iso).toLocaleDateString("en-US", {
       year: "numeric",
@@ -87,9 +88,9 @@ export default function ReviewPage() {
 
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [delivery, setDelivery] = useState<DeliveryOption>("18th");
-  const [customDate, setCustomDate] = useState<string>("2042-06-15");
+  const [customDate, setCustomDate] = useState<string>("2029-01-29");
   const [sealing, setSealing] = useState(false);
-  const [sealedDateLabel, setSealedDateLabel] = useState("June 15, 2042");
+  const [sealedDateLabel, setSealedDateLabel] = useState("January 29, 2029");
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -417,7 +418,7 @@ export default function ReviewPage() {
                 onClick={() => setDelivery("6th")}
               />
               <RadioRow
-                label="On her 18th birthday — June 15, 2042"
+                label="On her 18th birthday — January 29, 2029"
                 selected={delivery === "18th"}
                 onClick={() => setDelivery("18th")}
               />

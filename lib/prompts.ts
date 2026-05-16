@@ -36,6 +36,12 @@ export const PROMPTS: Prompt[] = [
     iconPath: "/assets/icons/graduation-cap.png",
     durationMin: 3,
   },
+  {
+    id: "6",
+    text: "Send your warmest birthday wishes.",
+    iconPath: "/assets/hero-gift-box.png",
+    durationMin: 2,
+  },
 ];
 
 export const DEFAULT_PROMPT_ID = "1";

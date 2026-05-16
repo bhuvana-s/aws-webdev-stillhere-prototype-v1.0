@@ -7,7 +7,7 @@ import Blob from "@/components/Blob";
 import { getBuyerInfo } from "@/lib/storage";
 
 export default function StorytellerWelcomePage() {
-  const [parentName, setParentName] = useState("Mom");
+  const [parentName, setParentName] = useState("Saro");
   const [childName, setChildName] = useState("Aanya");
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function StorytellerWelcomePage() {
           className="font-display mb-5 text-4xl leading-tight md:text-5xl"
           style={{ color: "var(--ink)" }}
         >
-          {childName}&apos;s family wants to hear your stories.
+          {childName} wants to hear your stories.
         </h1>
         <p
           className="mb-10 max-w-sm text-base md:text-lg"

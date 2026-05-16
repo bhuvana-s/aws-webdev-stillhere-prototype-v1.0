@@ -135,11 +135,23 @@ export default function SealLockAnimation({
               Sealed until {sealedDateLabel}.
             </h2>
             <p
-              className="text-sm"
+              className="mb-4 text-sm"
               style={{ color: "var(--ink-light)" }}
             >
               Even we cannot open this before then.
             </p>
+            <div
+              className="mx-auto inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold"
+              style={{
+                background: "var(--bg-light)",
+                color: "var(--terra-deep)",
+                border: "1px solid var(--terra-pale)",
+                letterSpacing: "0.08em",
+              }}
+            >
+              <span aria-hidden>🔐</span>
+              <span>AES-256 · AWS KMS · Encrypted</span>
+            </div>
           </motion.div>
         </motion.div>
       )}

@@ -23,7 +23,7 @@ export default function LandingPage() {
       <Blob variant="sage" size={220} style={{ top: 120, right: -60 }} />
       <Blob variant="gold" size={140} style={{ bottom: 120, left: 60 }} />
 
-      <div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 pt-10 pb-20 text-center md:pt-14">
+      <div className="mx-auto flex max-w-3xl flex-col items-center justify-center px-6 pt-2 pb-16 text-center md:pt-4">
         <p className="eyebrow mb-5">A StillHere Legacy Gift</p>
 
         <h1

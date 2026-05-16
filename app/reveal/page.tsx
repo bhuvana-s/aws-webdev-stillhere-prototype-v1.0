@@ -33,7 +33,7 @@ function formatClock(s: number): string {
 }
 
 function formatDate(iso?: string): string {
-  if (!iso) return "June 15, 2042";
+  if (!iso) return "January 29, 2029";
   try {
     return new Date(iso).toLocaleDateString("en-US", {
       year: "numeric",
@@ -49,9 +49,9 @@ export default function RevealPage() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [title, setTitle] = useState("The morning you came into the world");
-  const [sealedDateLabel, setSealedDateLabel] = useState("June 15, 2042");
+  const [sealedDateLabel, setSealedDateLabel] = useState("January 29, 2029");
   const [childName, setChildName] = useState("Aanya");
-  const [parentName, setParentName] = useState("Grandma");
+  const [parentName, setParentName] = useState("Saro");
 
   const [audioDuration, setAudioDuration] = useState(0);
   const [audioPos, setAudioPos] = useState(0);
@@ -295,6 +295,15 @@ export default function RevealPage() {
                       style={{ color: "var(--muted)" }}
                     >
                       A story from {parentName} · Treasured Album
+                    </p>
+                    <p
+                      className="mt-2 text-[10px] font-semibold"
+                      style={{
+                        color: "var(--sage-deep)",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      🔓 Decrypted via AWS KMS · Delivered via CloudFront
                     </p>
                   </div>
 

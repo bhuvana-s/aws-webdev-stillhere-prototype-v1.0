@@ -10,11 +10,11 @@ import StripeModal from "@/components/StripeModal";
 import { saveBuyerInfo, type BuyerInfo } from "@/lib/storage";
 
 const DEFAULT_BUYER: BuyerInfo = {
-  buyerName: "Bhuvana",
-  parentName: "Mom",
-  parentPhone: "+1 (555) 010-7724",
+  buyerName: "Harini",
+  parentName: "Saro",
+  parentPhone: "+91 98654 34XXX",
   childName: "Aanya",
-  childBirthdate: "2024-06-15",
+  childBirthdate: "2011-01-29",
 };
 
 export default function BuyPage() {
