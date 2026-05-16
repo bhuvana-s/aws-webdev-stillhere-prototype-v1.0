@@ -52,6 +52,7 @@ export async function POST(req: Request) {
 "${promptText}". Suggest a 4-8 word warm, intimate title.
 Reply with ONLY the title, no quotes, no other text.`;
 
+  const errors: string[] = [];
   for (const modelId of MODEL_IDS) {
     try {
       const command = new InvokeModelCommand({
@@ -71,14 +72,20 @@ Reply with ONLY the title, no quotes, no other text.`;
         return Response.json({ title, source: modelId });
       }
     } catch (err) {
+      const name = err instanceof Error ? err.name : "Unknown";
       const msg = err instanceof Error ? err.message : String(err);
-      console.warn(`[generate-title] ${modelId} failed: ${msg}`);
+      const errLine = `${modelId}: ${name}: ${msg}`;
+      console.warn(`[generate-title] ${errLine}`);
+      errors.push(errLine);
       continue;
     }
   }
 
+  // Debug payload includes the actual Bedrock errors when STILLHERE_DEBUG=1.
+  // Remove the env-gate once title generation is verified end-to-end on prod.
   return Response.json({
     title: STATIC_FALLBACKS[promptId] ?? "Your story",
     source: "static",
+    ...(process.env.STILLHERE_DEBUG === "1" ? { region, errors } : {}),
   });
 }
