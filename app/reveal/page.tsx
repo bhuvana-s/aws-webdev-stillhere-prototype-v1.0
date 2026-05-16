@@ -12,6 +12,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import BlobShape from "@/components/Blob";
 import ClayCard from "@/components/ClayCard";
+import EndScreen from "@/components/EndScreen";
 import PressGallery from "@/components/PressGallery";
 import ReplyRecorder from "@/components/ReplyRecorder";
 import WaxSeal from "@/components/WaxSeal";
@@ -34,7 +35,7 @@ function formatClock(s: number): string {
 }
 
 function formatDate(iso?: string): string {
-  if (!iso) return "January 29, 2029";
+  if (!iso) return "January 29, 2042";
   try {
     return new Date(iso).toLocaleDateString("en-US", {
       year: "numeric",
@@ -50,13 +51,14 @@ export default function RevealPage() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [title, setTitle] = useState("The morning you came into the world");
-  const [sealedDateLabel, setSealedDateLabel] = useState("January 29, 2029");
+  const [sealedDateLabel, setSealedDateLabel] = useState("January 29, 2042");
   const [childName, setChildName] = useState("Aanya");
   const [parentName, setParentName] = useState("Saro");
 
   const [audioDuration, setAudioDuration] = useState(0);
   const [audioPos, setAudioPos] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [endScreenOpen, setEndScreenOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>("sealed");
   const [toast, setToast] = useState<string | null>(null);
 
@@ -372,7 +374,7 @@ export default function RevealPage() {
               </div>
 
               <div className="mt-10 flex w-full justify-center">
-                <ReplyRecorder />
+                <ReplyRecorder onFinalize={() => setEndScreenOpen(true)} />
               </div>
 
               <div className="mt-16 w-full">
@@ -413,6 +415,11 @@ export default function RevealPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <EndScreen
+        show={endScreenOpen}
+        onClose={() => setEndScreenOpen(false)}
+      />
     </main>
   );
 }

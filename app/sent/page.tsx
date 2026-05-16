@@ -14,7 +14,7 @@ import {
 } from "@/lib/storage";
 
 function formatDate(iso?: string): string {
-  if (!iso) return "January 29, 2029";
+  if (!iso) return "January 29, 2042";
   try {
     return new Date(iso).toLocaleDateString("en-US", {
       year: "numeric",
@@ -31,7 +31,7 @@ export default function SentPage() {
   const [status, setStatus] = useState<SealStatus>("draft");
   const [parentName, setParentName] = useState("Saro");
   const [childName, setChildName] = useState("Aanya");
-  const [sealedDateLabel, setSealedDateLabel] = useState("January 29, 2029");
+  const [sealedDateLabel, setSealedDateLabel] = useState("January 29, 2042");
   const [toast, setToast] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -113,7 +113,7 @@ export default function SentPage() {
             onClick={onSkipTo2042}
             className="btn-ghost"
           >
-            Demo: skip to {sealedDateLabel.split(",")[1]?.trim() || "2029"}
+            Demo: skip to {sealedDateLabel.split(",")[1]?.trim() || "2042"}
           </button>
         )}
 
@@ -198,8 +198,8 @@ function DraftView({
               className="text-xs leading-relaxed"
               style={{ color: "var(--muted)" }}
             >
-              &ldquo;{childName} wants to hear your stories. Tap
-              here when you have a moment.&rdquo;
+              &ldquo;{childName}
+              {" "}wants to hear your stories. Tap here when you have a moment.&rdquo;
             </p>
           </div>
         </div>

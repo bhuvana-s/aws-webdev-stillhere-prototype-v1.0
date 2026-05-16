@@ -20,7 +20,13 @@ function formatTime(s: number): string {
   return `${m.toString().padStart(2, "0")}:${r.toString().padStart(2, "0")}`;
 }
 
-export default function ReplyRecorder() {
+interface ReplyRecorderProps {
+  /** Optional CTA shown under the saved-state pill — used to open the
+   *  closing StillHere screen on /reveal. */
+  onFinalize?: () => void;
+}
+
+export default function ReplyRecorder({ onFinalize }: ReplyRecorderProps = {}) {
   const [state, setState] = useState<State>("idle");
   const [elapsedSec, setElapsedSec] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -116,24 +122,39 @@ export default function ReplyRecorder() {
     }
   }, [teardown]);
 
-  // SAVED state — celebratory pill, doesn't disappear (so judge can see it).
+  // SAVED state — celebratory pill, plus the StillHere finale button.
   if (state === "saved") {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="mt-2 inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm"
-        style={{
-          background: "var(--sage-pale)",
-          color: "var(--sage-deep)",
-          border: "1px solid var(--sage)",
-          fontWeight: 600,
-        }}
-      >
-        <span aria-hidden>✦</span>
-        Your reflection is captured for the family vault.
-      </motion.div>
+      <div className="flex flex-col items-center gap-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm"
+          style={{
+            background: "var(--sage-pale)",
+            color: "var(--sage-deep)",
+            border: "1px solid var(--sage)",
+            fontWeight: 600,
+          }}
+        >
+          <span aria-hidden>✦</span>
+          Your reflection is captured for the family vault.
+        </motion.div>
+
+        {onFinalize && (
+          <motion.button
+            type="button"
+            onClick={onFinalize}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="btn-terra"
+          >
+            StillHere
+          </motion.button>
+        )}
+      </div>
     );
   }
 

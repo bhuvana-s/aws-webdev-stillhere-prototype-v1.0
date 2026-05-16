@@ -22,14 +22,12 @@ import {
   sealStory,
 } from "@/lib/storage";
 
-type DeliveryOption = "6th" | "18th" | "parent" | "custom";
+type DeliveryOption = "18th" | "graduation" | "custom";
 
-// Aanya's birthday is 2011-01-29 (see DEFAULT_BUYER in app/buy/page.tsx).
-const DELIVERY_DATES: Record<DeliveryOption, string> = {
-  "6th": "2017-01-29",
-  "18th": "2029-01-29",
-  parent: "2041-01-29",
-  custom: "",
+// Aanya's birthday is 2024-01-29 (see DEFAULT_BUYER in app/buy/page.tsx).
+// Graduation date is user-picked (defaults to May 15, 2046 — ~22 yrs).
+const DELIVERY_DATES: Record<Exclude<DeliveryOption, "graduation" | "custom">, string> = {
+  "18th": "2042-01-29",
 };
 
 function formatClock(s: number): string {
@@ -40,7 +38,7 @@ function formatClock(s: number): string {
 }
 
 function formatDate(iso: string): string {
-  if (!iso) return "January 29, 2029";
+  if (!iso) return "January 29, 2042";
   try {
     return new Date(iso).toLocaleDateString("en-US", {
       year: "numeric",
@@ -88,9 +86,10 @@ export default function ReviewPage() {
 
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [delivery, setDelivery] = useState<DeliveryOption>("18th");
-  const [customDate, setCustomDate] = useState<string>("2029-01-29");
+  const [customDate, setCustomDate] = useState<string>("2042-01-29");
+  const [graduationDate, setGraduationDate] = useState<string>("2046-05-15");
   const [sealing, setSealing] = useState(false);
-  const [sealedDateLabel, setSealedDateLabel] = useState("January 29, 2029");
+  const [sealedDateLabel, setSealedDateLabel] = useState("January 29, 2042");
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -203,9 +202,11 @@ export default function ReviewPage() {
 
   const onSeal = useCallback(async () => {
     if (sealing) return;
-    const sealedDate =
-      (delivery === "custom" ? customDate : DELIVERY_DATES[delivery]) ||
-      DELIVERY_DATES["18th"];
+    let sealedDate: string;
+    if (delivery === "custom") sealedDate = customDate;
+    else if (delivery === "graduation") sealedDate = graduationDate;
+    else sealedDate = DELIVERY_DATES[delivery];
+    if (!sealedDate) sealedDate = DELIVERY_DATES["18th"];
     setSealedDateLabel(formatDate(sealedDate));
     setSealing(true);
 
@@ -219,7 +220,7 @@ export default function ReviewPage() {
 
     // Hold the lock-close animation for ~2.4s, then navigate.
     window.setTimeout(() => router.push("/reveal"), 2400);
-  }, [customDate, delivery, router, sealing, title]);
+  }, [customDate, delivery, graduationDate, router, sealing, title]);
 
   const scrubberPct = useMemo(() => {
     if (audioDuration <= 0) return 0;
@@ -413,20 +414,24 @@ export default function ReviewPage() {
             <p className="eyebrow">Deliver on</p>
             <div className="flex flex-col gap-2">
               <RadioRow
-                label="On her 6th birthday"
-                selected={delivery === "6th"}
-                onClick={() => setDelivery("6th")}
-              />
-              <RadioRow
-                label="On her 18th birthday — January 29, 2029"
+                label="On her 18th birthday — January 29, 2042"
                 selected={delivery === "18th"}
                 onClick={() => setDelivery("18th")}
               />
               <RadioRow
-                label="When she becomes a parent"
-                selected={delivery === "parent"}
-                onClick={() => setDelivery("parent")}
+                label="On her graduation"
+                selected={delivery === "graduation"}
+                onClick={() => setDelivery("graduation")}
               />
+              {delivery === "graduation" && (
+                <input
+                  type="date"
+                  className="clay-input mt-1"
+                  value={graduationDate}
+                  onChange={(e) => setGraduationDate(e.target.value)}
+                  aria-label="Graduation date"
+                />
+              )}
               <RadioRow
                 label="A custom date"
                 selected={delivery === "custom"}

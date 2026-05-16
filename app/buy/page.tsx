@@ -14,7 +14,7 @@ const DEFAULT_BUYER: BuyerInfo = {
   parentName: "Saro",
   parentPhone: "+91 98654 34XXX",
   childName: "Aanya",
-  childBirthdate: "2011-01-29",
+  childBirthdate: "2024-01-29",
 };
 
 export default function BuyPage() {
