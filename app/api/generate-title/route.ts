@@ -81,11 +81,12 @@ Reply with ONLY the title, no quotes, no other text.`;
     }
   }
 
-  // Debug payload includes the actual Bedrock errors when STILLHERE_DEBUG=1.
-  // Remove the env-gate once title generation is verified end-to-end on prod.
+  // TEMP: always include diagnostics in the response. Revert once Bedrock
+  // works end-to-end on the deployed Lambda.
   return Response.json({
     title: STATIC_FALLBACKS[promptId] ?? "Your story",
     source: "static",
-    ...(process.env.STILLHERE_DEBUG === "1" ? { region, errors } : {}),
+    region,
+    errors,
   });
 }
