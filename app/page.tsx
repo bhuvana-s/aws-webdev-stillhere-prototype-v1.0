@@ -1,8 +1,21 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
 import Blob from "@/components/Blob";
+import { clearStory } from "@/lib/storage";
 
 export default function LandingPage() {
+  // Every visit to / wipes the prior recording, photo, title, sealedDate,
+  // and prompt selection so the demo always walks through a fresh story.
+  // Buyer info is preserved so we don't re-ask for Mom/Aanya every run.
+  useEffect(() => {
+    clearStory().catch(() => {
+      /* best effort — fresh installs have nothing to clear */
+    });
+  }, []);
+
   return (
     <main className="page-shell relative min-h-screen overflow-hidden">
       <Blob variant="terra" size={260} style={{ top: -60, left: -80 }} />

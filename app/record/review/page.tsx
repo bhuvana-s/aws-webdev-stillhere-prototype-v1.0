@@ -11,9 +11,11 @@ import {
 } from "react";
 import Blob from "@/components/Blob";
 import ClayCard from "@/components/ClayCard";
-import { getPromptById, DEFAULT_PROMPT_ID } from "@/lib/prompts";
+import SealLockAnimation from "@/components/SealLockAnimation";
+import { getPromptById, DEFAULT_PROMPT_ID, type Prompt } from "@/lib/prompts";
 import {
   getRecording,
+  getSelectedPromptId,
   saveTitle,
   savePhoto,
   getPhoto,
@@ -36,10 +38,42 @@ function formatClock(s: number): string {
   return `${m.toString().padStart(2, "0")}:${r.toString().padStart(2, "0")}`;
 }
 
+function formatDate(iso: string): string {
+  if (!iso) return "June 15, 2042";
+  try {
+    return new Date(iso).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return iso;
+  }
+}
+
 export default function ReviewPage() {
   const router = useRouter();
-  const prompt = getPromptById(DEFAULT_PROMPT_ID);
+  const [prompt, setPrompt] = useState<Prompt | undefined>(() =>
+    getPromptById(DEFAULT_PROMPT_ID),
+  );
   const staticFallbackTitle = "The morning you came into the world";
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const id = await getSelectedPromptId();
+        if (cancelled || !id) return;
+        const p = getPromptById(id);
+        if (p) setPrompt(p);
+      } catch {
+        /* keep default */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioDuration, setAudioDuration] = useState(0);
@@ -55,6 +89,7 @@ export default function ReviewPage() {
   const [delivery, setDelivery] = useState<DeliveryOption>("18th");
   const [customDate, setCustomDate] = useState<string>("2042-06-15");
   const [sealing, setSealing] = useState(false);
+  const [sealedDateLabel, setSealedDateLabel] = useState("June 15, 2042");
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -167,17 +202,22 @@ export default function ReviewPage() {
 
   const onSeal = useCallback(async () => {
     if (sealing) return;
-    setSealing(true);
     const sealedDate =
-      delivery === "custom" ? customDate : DELIVERY_DATES[delivery];
+      (delivery === "custom" ? customDate : DELIVERY_DATES[delivery]) ||
+      DELIVERY_DATES["18th"];
+    setSealedDateLabel(formatDate(sealedDate));
+    setSealing(true);
+
+    // Persist before the animation runs — saves are fast (single IndexedDB tx).
     try {
       await saveTitle(title.trim() || staticFallbackTitle);
-      await sealStory(sealedDate || DELIVERY_DATES["18th"]);
+      await sealStory(sealedDate);
     } catch (err) {
       console.warn("[review] seal failed:", err);
-    } finally {
-      router.push("/reveal");
     }
+
+    // Hold the lock-close animation for ~2.4s, then navigate.
+    window.setTimeout(() => router.push("/reveal"), 2400);
   }, [customDate, delivery, router, sealing, title]);
 
   const scrubberPct = useMemo(() => {
@@ -304,14 +344,20 @@ export default function ReviewPage() {
         </ClayCard>
 
         <ClayCard className="mb-6">
-          <div className="flex flex-col gap-3">
-            <p className="eyebrow">Add a photo (optional)</p>
+          <div className="flex flex-col items-center gap-3">
+            <p className="eyebrow self-start">Add a photo (optional)</p>
+
             <label
-              className="flex h-32 cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border-2 border-dashed"
+              className="group relative flex h-[140px] w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-full"
               style={{
-                borderColor: "var(--terra-pale)",
+                background: photoUrl ? "transparent" : "var(--bg-light)",
+                border: photoUrl
+                  ? "3px solid var(--bg-light)"
+                  : "2px dashed var(--terra-pale)",
+                boxShadow: photoUrl
+                  ? "6px 6px 18px rgba(61, 43, 31, 0.18), inset 0 1px 0 rgba(255,255,255,0.4)"
+                  : "inset 2px 2px 6px rgba(61, 43, 31, 0.06)",
                 color: "var(--muted)",
-                position: "relative",
               }}
             >
               {photoUrl ? (
@@ -319,15 +365,15 @@ export default function ReviewPage() {
                 <img
                   src={photoUrl}
                   alt="Selected photo"
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               ) : (
-                <>
-                  <span style={{ fontSize: 22 }}>📷</span>
-                  <span className="text-xs">
+                <div className="flex flex-col items-center gap-1.5 px-3 text-center">
+                  <span style={{ fontSize: 26 }} aria-hidden>📷</span>
+                  <span className="text-[11px] leading-tight">
                     Tap to pick a photo of yourself
                   </span>
-                </>
+                </div>
               )}
               <input
                 type="file"
@@ -336,6 +382,22 @@ export default function ReviewPage() {
                 onChange={onPhotoPick}
               />
             </label>
+
+            {photoUrl && (
+              <label
+                className="cursor-pointer text-xs"
+                style={{ color: "var(--terra-deep)", textDecoration: "underline", textUnderlineOffset: 4 }}
+              >
+                Replace photo
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={onPhotoPick}
+                />
+              </label>
+            )}
+
             <span
               className="text-xs"
               style={{ color: "var(--muted)" }}
@@ -393,6 +455,8 @@ export default function ReviewPage() {
           </button>
         </div>
       </div>
+
+      <SealLockAnimation show={sealing} sealedDateLabel={sealedDateLabel} />
     </main>
   );
 }

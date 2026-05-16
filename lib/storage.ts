@@ -46,6 +46,7 @@ export interface MetaRecord {
   sealedDate?: string;
   status: SealStatus;
   buyer?: BuyerInfo;
+  selectedPromptId?: string;
 }
 
 function isBrowser(): boolean {
@@ -174,6 +175,38 @@ export async function sealStory(sealedDate: string): Promise<void> {
 
 export async function setRevealed(): Promise<void> {
   await patchMeta({ status: "revealed" });
+}
+
+export async function saveSelectedPromptId(promptId: string): Promise<void> {
+  await patchMeta({ selectedPromptId: promptId });
+}
+
+export async function getSelectedPromptId(): Promise<string | undefined> {
+  const m = await getMetaRaw();
+  return m?.selectedPromptId;
+}
+
+/**
+ * Wipe everything tied to the current story attempt — recording, photo,
+ * title, sealedDate, selectedPromptId, status — while preserving the
+ * buyer info so the demo can re-run the recording flow with the same
+ * "Mom"/"Aanya" context.
+ */
+export async function clearStory(): Promise<void> {
+  if (!isBrowser()) return;
+  // Delete the binary stores.
+  await Promise.all([
+    tx("recordings", "readwrite", (s) => s.delete(DEMO_KEY)),
+    tx("photos", "readwrite", (s) => s.delete(DEMO_KEY)),
+  ]);
+  // Reset meta fields but keep buyer info.
+  const current = await getMetaRaw();
+  const next: MetaRecord = {
+    id: DEMO_KEY,
+    status: "draft",
+    buyer: current?.buyer,
+  };
+  await tx("meta", "readwrite", (s) => s.put(next));
 }
 
 /* ===========================================================

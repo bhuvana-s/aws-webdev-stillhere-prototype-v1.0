@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import Blob from "@/components/Blob";
 import ClayCard from "@/components/ClayCard";
+import StripeModal from "@/components/StripeModal";
 import { saveBuyerInfo, type BuyerInfo } from "@/lib/storage";
 
 const DEFAULT_BUYER: BuyerInfo = {
@@ -19,7 +20,7 @@ const DEFAULT_BUYER: BuyerInfo = {
 export default function BuyPage() {
   const router = useRouter();
   const [form, setForm] = useState<BuyerInfo>(DEFAULT_BUYER);
-  const [submitting, setSubmitting] = useState(false);
+  const [stripeOpen, setStripeOpen] = useState(false);
 
   function update<K extends keyof BuyerInfo>(key: K, value: BuyerInfo[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -27,15 +28,17 @@ export default function BuyPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (submitting) return;
-    setSubmitting(true);
     try {
       await saveBuyerInfo(form);
     } catch (err) {
       console.warn("[buy] saveBuyerInfo failed (continuing):", err);
     }
-    // Fake Stripe "processing" beat — 800ms — then onward.
-    setTimeout(() => router.push("/sent"), 800);
+    setStripeOpen(true);
+  }
+
+  function onStripeSuccess() {
+    setStripeOpen(false);
+    router.push("/sent");
   }
 
   return (
@@ -106,36 +109,19 @@ export default function BuyPage() {
               />
             </Section>
 
-            <div
-              className="mt-2 flex items-center justify-between gap-4 rounded-3xl px-5 py-4"
-              style={{ background: "var(--pink-muted)", color: "var(--white)" }}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="flex h-9 w-12 items-center justify-center rounded-md font-mono text-xs font-bold"
-                  style={{ background: "var(--gold)", color: "var(--ink)" }}
-                >
-                  CHIP
-                </div>
-                <div className="font-mono text-sm">4242 4242 4242 4242</div>
-              </div>
-              <div className="text-xs opacity-90">12/30 · 123</div>
-            </div>
-
             <p
               className="text-xs"
               style={{ color: "var(--muted)" }}
             >
-              Prefilled test card. No real charge — this is a demo prototype.
+              Stripe will open with a prefilled test card. No real charge.
             </p>
 
             <button
               type="submit"
               className="btn-sage mt-2"
               style={{ alignSelf: "center", minWidth: 220 }}
-              disabled={submitting}
             >
-              {submitting ? "Processing…" : "Send the gift — $99"}
+              Send the gift — $99
             </button>
           </form>
         </ClayCard>
@@ -157,6 +143,13 @@ export default function BuyPage() {
           </p>
         </div>
       </div>
+
+      <StripeModal
+        open={stripeOpen}
+        amountUsd={99}
+        onSuccess={onStripeSuccess}
+        onCancel={() => setStripeOpen(false)}
+      />
     </main>
   );
 }

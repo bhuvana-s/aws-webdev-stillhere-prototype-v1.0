@@ -8,8 +8,8 @@ import {
   useState,
 } from "react";
 import BlobShape from "@/components/Blob";
-import { getPromptById, DEFAULT_PROMPT_ID } from "@/lib/prompts";
-import { saveRecording } from "@/lib/storage";
+import { getPromptById, DEFAULT_PROMPT_ID, type Prompt } from "@/lib/prompts";
+import { getSelectedPromptId, saveRecording } from "@/lib/storage";
 
 const MAX_DURATION_SEC = 300; // 5 min hard stop (AC-7)
 const PAUSE_THRESHOLD_SEC = 4; // silence window that triggers AI nudge
@@ -37,7 +37,31 @@ function formatTime(s: number): string {
 
 export default function RecordingSessionPage() {
   const router = useRouter();
-  const prompt = getPromptById(DEFAULT_PROMPT_ID);
+  const [prompt, setPrompt] = useState<Prompt | undefined>(() =>
+    getPromptById(DEFAULT_PROMPT_ID),
+  );
+
+  const promptIdRef = useRef<string>(DEFAULT_PROMPT_ID);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const id = await getSelectedPromptId();
+        if (cancelled || !id) return;
+        const p = getPromptById(id);
+        if (p) {
+          setPrompt(p);
+          promptIdRef.current = p.id;
+        }
+      } catch {
+        /* keep default */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const [state, setState] = useState<RecState>("idle");
   const [elapsedSec, setElapsedSec] = useState(0);
@@ -205,7 +229,7 @@ export default function RecordingSessionPage() {
           await saveRecording(blob, {
             mimeType,
             durationSec,
-            promptId: DEFAULT_PROMPT_ID,
+            promptId: promptIdRef.current,
           });
         } catch (err) {
           console.warn("[record] saveRecording failed:", err);
