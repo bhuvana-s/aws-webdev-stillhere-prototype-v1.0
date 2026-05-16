@@ -8,8 +8,13 @@
 #   - Route 53 records that Amplify left behind (idempotent — skips if absent)
 #   - IAM role StillHerePrototype-AmplifySSRRole (detaches policies first)
 #
-# All resources are tagged with Project=stillhere-prototype so they can also
-# be located via:
+# DELIBERATELY PRESERVED:
+#   - ACM wildcard cert *.stillhere4u.com (tag Project=stillhere4u-shared).
+#     This cert is shared across all subdomains of stillhere4u.com and
+#     should outlive the prototype.
+#
+# All prototype-only resources are tagged Project=stillhere-prototype.
+# Locate them via:
 #   aws resourcegroupstaggingapi get-resources \
 #     --tag-filters Key=Project,Values=stillhere-prototype
 #
