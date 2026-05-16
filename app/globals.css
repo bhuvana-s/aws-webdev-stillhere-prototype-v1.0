@@ -1,26 +1,265 @@
 @import "tailwindcss";
 
+/* ============================================================
+   StillHere — Design Tokens (Addendum-driven)
+   Cream + Terra Cotta + Sage Green claymorphic 3D palette.
+   ============================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #F5F0E8;
+  --bg-light: #FAF5EE;
+  --terra: #C67B5C;
+  --terra-deep: #A65E42;
+  --terra-pale: #E8C4B0;
+  --sage: #8BAE8B;
+  --sage-deep: #6B8E6B;
+  --sage-pale: #D4E4D4;
+  --ink: #3D2B1F;
+  --ink-light: #5C4A3A;
+  --muted: #8B7B6B;
+  --gold: #D4A853;
+  --gold-pale: #F0DFB8;
+  --navy: #2C2C3A;
+  --white: #FFFFFF;
+  --pink-muted: #D4A08A;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-brand-bg: var(--bg);
+  --color-brand-bg-light: var(--bg-light);
+  --color-brand-terra: var(--terra);
+  --color-brand-terra-deep: var(--terra-deep);
+  --color-brand-terra-pale: var(--terra-pale);
+  --color-brand-sage: var(--sage);
+  --color-brand-sage-deep: var(--sage-deep);
+  --color-brand-sage-pale: var(--sage-pale);
+  --color-brand-ink: var(--ink);
+  --color-brand-ink-light: var(--ink-light);
+  --color-brand-muted: var(--muted);
+  --color-brand-gold: var(--gold);
+  --color-brand-gold-pale: var(--gold-pale);
+  --color-brand-navy: var(--navy);
+  --color-brand-pink-muted: var(--pink-muted);
+
+  --font-display: var(--font-playfair);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-space-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================================
+   Body — warm cream background + soft radial-gradient depth.
+   ============================================================ */
+
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(212, 168, 83, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(139, 174, 139, 0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+main,
+.page-shell {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   Claymorphic component CSS
+   ============================================================ */
+
+.clay-card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow:
+    8px 8px 16px rgba(61, 43, 31, 0.08),
+    -4px -4px 12px rgba(255, 255, 255, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.clay-input {
+  background: var(--terra-pale);
+  border: none;
+  border-radius: 50px;
+  padding: 14px 20px;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  box-shadow: inset 2px 2px 4px rgba(61, 43, 31, 0.08);
+  width: 100%;
+}
+.clay-input::placeholder {
+  color: var(--muted);
+}
+.clay-input:focus {
+  outline: none;
+  box-shadow:
+    inset 2px 2px 4px rgba(61, 43, 31, 0.08),
+    0 0 0 2px var(--sage-pale);
+}
+
+.btn-terra {
+  background: var(--terra);
+  color: var(--white);
+  border: none;
+  border-radius: 50px;
+  padding: 16px 40px;
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow:
+    4px 4px 12px rgba(198, 123, 92, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.btn-terra:hover {
+  background: var(--terra-deep);
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 20px rgba(198, 123, 92, 0.4);
+}
+
+.btn-sage {
+  background: var(--sage);
+  color: var(--white);
+  border: none;
+  border-radius: 50px;
+  padding: 14px 32px;
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow:
+    4px 4px 12px rgba(139, 174, 139, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.btn-sage:hover {
+  background: var(--sage-deep);
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 20px rgba(139, 174, 139, 0.4);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-light);
+  border: none;
+  border-radius: 50px;
+  padding: 10px 22px;
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.btn-ghost:hover {
+  color: var(--terra-deep);
+}
+
+.record-btn {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--terra);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  box-shadow:
+    6px 6px 16px rgba(198, 123, 92, 0.35),
+    inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+}
+.record-btn::before,
+.record-btn::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid var(--terra);
+  opacity: 0;
+}
+.record-btn.recording::before {
+  inset: -12px;
+  animation: wave-ring 1.5s infinite;
+}
+.record-btn.recording::after {
+  inset: -24px;
+  animation: wave-ring 1.5s infinite 0.3s;
+}
+@keyframes wave-ring {
+  0%   { opacity: 0.6; transform: scale(0.95); }
+  100% { opacity: 0;   transform: scale(1.15); }
+}
+
+/* ============================================================
+   Typography helpers
+   ============================================================ */
+
+.font-display {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+.font-mono {
+  font-family: var(--font-space-mono), ui-monospace, monospace;
+}
+
+.eyebrow {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ============================================================
+   Decorative blobs (positioned via inline style by Blob.tsx)
+   ============================================================ */
+
+.blob {
+  position: absolute;
+  filter: blur(1px);
+  pointer-events: none;
+  z-index: 0;
+}
+.blob-terra {
+  background: var(--terra);
+  opacity: 0.15;
+  border-radius: 60% 40% 50% 70% / 50% 60% 40% 50%;
+}
+.blob-sage {
+  background: var(--sage);
+  opacity: 0.12;
+  border-radius: 40% 60% 70% 30% / 60% 30% 70% 40%;
+}
+.blob-gold {
+  background: var(--gold-pale);
+  opacity: 0.25;
+  border-radius: 50% 50% 40% 60%;
 }
