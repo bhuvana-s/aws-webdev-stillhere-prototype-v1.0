@@ -1,9 +1,43 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
 import Blob from "@/components/Blob";
 import ClayCard from "@/components/ClayCard";
+import { saveBuyerInfo, type BuyerInfo } from "@/lib/storage";
+
+const DEFAULT_BUYER: BuyerInfo = {
+  buyerName: "Bhuvana",
+  parentName: "Mom",
+  parentPhone: "+1 (555) 010-7724",
+  childName: "Aanya",
+  childBirthdate: "2024-06-15",
+};
 
 export default function BuyPage() {
+  const router = useRouter();
+  const [form, setForm] = useState<BuyerInfo>(DEFAULT_BUYER);
+  const [submitting, setSubmitting] = useState(false);
+
+  function update<K extends keyof BuyerInfo>(key: K, value: BuyerInfo[K]) {
+    setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await saveBuyerInfo(form);
+    } catch (err) {
+      console.warn("[buy] saveBuyerInfo failed (continuing):", err);
+    }
+    // Fake Stripe "processing" beat — 800ms — then onward.
+    setTimeout(() => router.push("/sent"), 800);
+  }
+
   return (
     <main className="page-shell relative min-h-screen overflow-hidden">
       <Blob variant="sage" size={200} style={{ top: -40, left: -60 }} />
@@ -30,28 +64,30 @@ export default function BuyPage() {
           className="mb-10 text-base"
           style={{ color: "var(--ink-light)" }}
         >
-          Tell us who's giving, who's recording, and who will one day hear it.
+          Tell us who&apos;s giving, who&apos;s recording, and who will one day
+          hear it.
         </p>
 
         <ClayCard className="mb-6">
-          <form
-            action="/sent"
-            className="flex flex-col gap-5"
-          >
+          <form onSubmit={onSubmit} className="flex flex-col gap-5">
             <Section title="Buyer">
-              <Field label="Your name" name="buyerName" placeholder="Bhuvana" />
+              <Field
+                label="Your name"
+                value={form.buyerName}
+                onChange={(v) => update("buyerName", v)}
+              />
             </Section>
 
             <Section title="Storyteller">
               <Field
                 label="Your parent's name"
-                name="parentName"
-                placeholder="Mom"
+                value={form.parentName}
+                onChange={(v) => update("parentName", v)}
               />
               <Field
                 label="Your parent's phone"
-                name="parentPhone"
-                placeholder="+1 (555) 010-7724"
+                value={form.parentPhone}
+                onChange={(v) => update("parentPhone", v)}
                 type="tel"
               />
             </Section>
@@ -59,12 +95,13 @@ export default function BuyPage() {
             <Section title="Recipient">
               <Field
                 label="Your child's name"
-                name="childName"
-                placeholder="Aanya"
+                value={form.childName}
+                onChange={(v) => update("childName", v)}
               />
               <Field
                 label="Your child's birthdate"
-                name="childBirthdate"
+                value={form.childBirthdate}
+                onChange={(v) => update("childBirthdate", v)}
                 type="date"
               />
             </Section>
@@ -96,8 +133,9 @@ export default function BuyPage() {
               type="submit"
               className="btn-sage mt-2"
               style={{ alignSelf: "center", minWidth: 220 }}
+              disabled={submitting}
             >
-              Send the gift — $99
+              {submitting ? "Processing…" : "Send the gift — $99"}
             </button>
           </form>
         </ClayCard>
@@ -140,13 +178,13 @@ function Section({
 
 function Field({
   label,
-  name,
-  placeholder,
+  value,
+  onChange,
   type = "text",
 }: {
   label: string;
-  name: string;
-  placeholder?: string;
+  value: string;
+  onChange: (v: string) => void;
   type?: string;
 }) {
   return (
@@ -160,8 +198,8 @@ function Field({
       <input
         className="clay-input"
         type={type}
-        name={name}
-        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
         autoComplete="off"
       />
     </label>

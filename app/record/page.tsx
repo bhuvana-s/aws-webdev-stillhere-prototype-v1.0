@@ -1,8 +1,32 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import Blob from "@/components/Blob";
+import { getBuyerInfo } from "@/lib/storage";
 
 export default function StorytellerWelcomePage() {
+  const [parentName, setParentName] = useState("Mom");
+  const [childName, setChildName] = useState("Aanya");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const buyer = await getBuyerInfo();
+        if (cancelled || !buyer) return;
+        if (buyer.parentName) setParentName(buyer.parentName);
+        if (buyer.childName) setChildName(buyer.childName);
+      } catch {
+        /* fall back to defaults */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <main className="page-shell relative min-h-screen overflow-hidden">
       <Blob variant="sage" size={240} style={{ top: -60, left: -60 }} />
@@ -22,19 +46,19 @@ export default function StorytellerWelcomePage() {
           />
         </div>
 
-        <p className="eyebrow mb-3">Hi Mom</p>
+        <p className="eyebrow mb-3">Hi {parentName}</p>
         <h1
           className="font-display mb-5 text-4xl leading-tight md:text-5xl"
           style={{ color: "var(--ink)" }}
         >
-          Aanya's family wants to hear your stories.
+          {childName}&apos;s family wants to hear your stories.
         </h1>
         <p
           className="mb-10 max-w-sm text-base md:text-lg"
           style={{ color: "var(--ink-light)" }}
         >
-          Take your time. There's nothing to download, nothing to log in to.
-          Just one tap when you're ready.
+          Take your time. There&apos;s nothing to download, nothing to log in
+          to. Just one tap when you&apos;re ready.
         </p>
 
         <Link href="/record/prompt" className="btn-terra">

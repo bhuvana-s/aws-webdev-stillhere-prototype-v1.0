@@ -1,34 +1,191 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import Blob from "@/components/Blob";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import BlobShape from "@/components/Blob";
 import ClayCard from "@/components/ClayCard";
 import WaxSeal from "@/components/WaxSeal";
+import {
+  getBuyerInfo,
+  getMeta,
+  getPhoto,
+  getRecording,
+  setRevealed,
+} from "@/lib/storage";
+
+function formatClock(s: number): string {
+  if (!Number.isFinite(s) || s < 0) s = 0;
+  const m = Math.floor(s / 60);
+  const r = Math.floor(s % 60);
+  return `${m.toString().padStart(2, "0")}:${r.toString().padStart(2, "0")}`;
+}
+
+function formatDate(iso?: string): string {
+  if (!iso) return "June 15, 2042";
+  try {
+    return new Date(iso).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return iso;
+  }
+}
 
 export default function RevealPage() {
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [title, setTitle] = useState("The morning you came into the world");
+  const [sealedDateLabel, setSealedDateLabel] = useState("June 15, 2042");
+  const [childName, setChildName] = useState("Aanya");
+  const [parentName, setParentName] = useState("Grandma");
+
+  const [audioDuration, setAudioDuration] = useState(0);
+  const [audioPos, setAudioPos] = useState(0);
+  const [playing, setPlaying] = useState(false);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    let createdAudio: string | null = null;
+    let createdPhoto: string | null = null;
+
+    (async () => {
+      try {
+        const rec = await getRecording();
+        if (!cancelled && rec?.blob) {
+          createdAudio = URL.createObjectURL(rec.blob);
+          setAudioUrl(createdAudio);
+          setAudioDuration(rec.durationSec ?? 0);
+        }
+      } catch (err) {
+        console.warn("[reveal] getRecording failed:", err);
+      }
+
+      try {
+        const photo = await getPhoto();
+        if (!cancelled && photo?.blob) {
+          createdPhoto = URL.createObjectURL(photo.blob);
+          setPhotoUrl(createdPhoto);
+        }
+      } catch {
+        /* photo is optional */
+      }
+
+      try {
+        const meta = await getMeta();
+        if (!cancelled && meta) {
+          if (meta.title) setTitle(meta.title);
+          if (meta.sealedDate) setSealedDateLabel(formatDate(meta.sealedDate));
+        }
+      } catch {
+        /* meta optional */
+      }
+
+      try {
+        const buyer = await getBuyerInfo();
+        if (!cancelled && buyer) {
+          if (buyer.childName) setChildName(buyer.childName);
+          if (buyer.parentName) setParentName(buyer.parentName);
+        }
+      } catch {
+        /* optional */
+      }
+
+      try {
+        await setRevealed();
+      } catch {
+        /* status is best-effort */
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (createdAudio) URL.revokeObjectURL(createdAudio);
+      if (createdPhoto) URL.revokeObjectURL(createdPhoto);
+    };
+  }, []);
+
+  const onLoadedMetadata = useCallback(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (Number.isFinite(a.duration) && a.duration > 0) {
+      setAudioDuration(a.duration);
+    }
+  }, []);
+
+  const onTimeUpdate = useCallback(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    setAudioPos(a.currentTime);
+  }, []);
+
+  const onEnded = useCallback(() => {
+    setPlaying(false);
+    setAudioPos(0);
+  }, []);
+
+  const togglePlay = useCallback(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (playing) {
+      a.pause();
+      setPlaying(false);
+    } else {
+      a.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+    }
+  }, [playing]);
+
+  const scrubberPct = useMemo(() => {
+    if (audioDuration <= 0) return 0;
+    return Math.min(100, (audioPos / audioDuration) * 100);
+  }, [audioPos, audioDuration]);
+
   return (
     <main className="page-shell relative min-h-screen overflow-hidden">
-      <Blob variant="gold" size={220} style={{ top: -40, left: -40 }} />
-      <Blob variant="terra" size={180} style={{ top: 240, right: -40 }} />
-      <Blob variant="sage" size={160} style={{ bottom: 80, left: -40 }} />
-      <Blob variant="gold" size={120} style={{ bottom: 160, right: 40 }} />
+      <BlobShape variant="gold" size={220} style={{ top: -40, left: -40 }} />
+      <BlobShape variant="terra" size={180} style={{ top: 240, right: -40 }} />
+      <BlobShape variant="sage" size={160} style={{ bottom: 80, left: -40 }} />
+      <BlobShape variant="gold" size={120} style={{ bottom: 160, right: 40 }} />
+
+      {audioUrl && (
+        <audio
+          ref={audioRef}
+          src={audioUrl}
+          preload="metadata"
+          onLoadedMetadata={onLoadedMetadata}
+          onTimeUpdate={onTimeUpdate}
+          onEnded={onEnded}
+          className="hidden"
+        />
+      )}
 
       <div className="mx-auto flex max-w-xl flex-col items-center px-6 py-12 text-center md:py-16">
         <div className="mb-8">
           <WaxSeal size={220} />
         </div>
 
-        <p className="eyebrow mb-3">From Grandma</p>
+        <p className="eyebrow mb-3">From {parentName}</p>
         <h1
           className="font-display mb-2 text-4xl leading-tight md:text-5xl"
           style={{ color: "var(--ink)" }}
         >
-          For Aanya.
+          For {childName}.
         </h1>
         <p
           className="mb-10 text-base"
           style={{ color: "var(--ink-light)" }}
         >
-          June 15, 2042 — your 18th birthday.
+          {sealedDateLabel}.
         </p>
 
         <ClayCard className="mb-8 w-full">
@@ -41,13 +198,22 @@ export default function RevealPage() {
                 border: "3px solid var(--bg-light)",
               }}
             >
-              <Image
-                src="/assets/player-avatar-default.png"
-                alt="Grandma's avatar"
-                fill
-                sizes="128px"
-                style={{ objectFit: "cover" }}
-              />
+              {photoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={photoUrl}
+                  alt={`${parentName}'s photo`}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <Image
+                  src="/assets/player-avatar-default.png"
+                  alt={`${parentName}'s avatar`}
+                  fill
+                  sizes="128px"
+                  style={{ objectFit: "cover" }}
+                />
+              )}
             </div>
 
             <div>
@@ -55,29 +221,33 @@ export default function RevealPage() {
                 className="font-display text-2xl"
                 style={{ color: "var(--sage-deep)" }}
               >
-                The morning you came into the world
+                {title}
               </h2>
               <p
                 className="text-xs"
                 style={{ color: "var(--muted)" }}
               >
-                A story from Grandma · Treasured Album
+                A story from {parentName} · Treasured Album
               </p>
             </div>
 
             <button
               type="button"
-              disabled
+              onClick={togglePlay}
+              disabled={!audioUrl}
               className="flex h-20 w-20 items-center justify-center rounded-full"
               style={{
-                background: "var(--terra)",
+                background: audioUrl ? "var(--terra)" : "var(--terra-pale)",
                 color: "var(--white)",
                 fontSize: 28,
+                cursor: audioUrl ? "pointer" : "not-allowed",
+                opacity: audioUrl ? 1 : 0.5,
                 boxShadow: "6px 6px 16px rgba(198, 123, 92, 0.35)",
+                border: "none",
               }}
-              aria-label="Play story"
+              aria-label={playing ? "Pause" : "Play"}
             >
-              ▶
+              {playing ? "❚❚" : "▶"}
             </button>
 
             <div className="w-full">
@@ -86,34 +256,39 @@ export default function RevealPage() {
                 style={{ background: "var(--sage-pale)" }}
               >
                 <div
-                  className="h-full rounded-full"
-                  style={{ background: "var(--sage)", width: "0%" }}
+                  className="h-full rounded-full transition-[width] duration-100 ease-linear"
+                  style={{
+                    background: "var(--sage)",
+                    width: `${scrubberPct}%`,
+                  }}
                 />
               </div>
               <div
                 className="mt-2 flex justify-between font-mono text-xs"
                 style={{ color: "var(--muted)" }}
               >
-                <span>00:00</span>
-                <span>03:00</span>
+                <span>{formatClock(audioPos)}</span>
+                <span>{formatClock(audioDuration)}</span>
               </div>
             </div>
+
+            {!audioUrl && (
+              <p
+                className="text-xs"
+                style={{ color: "var(--muted)" }}
+              >
+                No recording stored yet — record one on the previous screens
+                first.
+              </p>
+            )}
           </div>
         </ClayCard>
 
         <div className="flex items-center gap-4">
-          <button
-            type="button"
-            className="btn-ghost"
-            disabled
-          >
+          <button type="button" className="btn-ghost" disabled>
             Save forever
           </button>
-          <button
-            type="button"
-            className="btn-ghost"
-            disabled
-          >
+          <button type="button" className="btn-ghost" disabled>
             Record a reply
           </button>
         </div>
