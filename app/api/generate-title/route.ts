@@ -52,7 +52,6 @@ export async function POST(req: Request) {
 "${promptText}". Suggest a 4-8 word warm, intimate title.
 Reply with ONLY the title, no quotes, no other text.`;
 
-  const errors: string[] = [];
   for (const modelId of MODEL_IDS) {
     try {
       const command = new InvokeModelCommand({
@@ -72,21 +71,14 @@ Reply with ONLY the title, no quotes, no other text.`;
         return Response.json({ title, source: modelId });
       }
     } catch (err) {
-      const name = err instanceof Error ? err.name : "Unknown";
       const msg = err instanceof Error ? err.message : String(err);
-      const errLine = `${modelId}: ${name}: ${msg}`;
-      console.warn(`[generate-title] ${errLine}`);
-      errors.push(errLine);
+      console.warn(`[generate-title] ${modelId} failed: ${msg}`);
       continue;
     }
   }
 
-  // TEMP: always include diagnostics in the response. Revert once Bedrock
-  // works end-to-end on the deployed Lambda.
   return Response.json({
     title: STATIC_FALLBACKS[promptId] ?? "Your story",
     source: "static",
-    region,
-    errors,
   });
 }
